@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Currículo Profissional</title>
+  <style>
+    /* Reset e básico */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f7f7f7;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    body.dark {
+      background-color: #121212;
+      color: #ddd;
+    }
+
+    header {
+      background-color: #005f73;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    body.dark header {
+      background-color: #0a9396;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    button#themeToggle {
+      background: none;
+      border: 2px solid white;
+      color: white;
+      padding: 0.3rem 0.7rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    button#themeToggle:hover {
+      background-color: white;
+      color: #005f73;
+    }
+    body.dark button#themeToggle:hover {
+      background-color: white;
+      color: #0a9396;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem;
+      gap: 1rem;
+      background-color: #eee;
+    }
+    body.dark main {
+      background-color: #222;
+    }
+
+    form#cvForm {
+      flex: 1 1 320px;
+      max-width: 480px;
+      background-color: white;
+      border-radius: 6px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+    body.dark form#cvForm {
+      background-color: #333;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    }
+
+    form label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    form input[type="text"],
+    form input[type="email"],
+    form textarea {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 0.3rem;
+      background-color: #fafafa;
+      color: #222;
+      resize: vertical;
+      min-height: 2rem;
+    }
+    body.dark form input[type="text"],
+    body.dark form input[type="email"],
+    body.dark form textarea {
+      background-color: #444;
+      border: 1px solid #666;
+      color: #ddd;
+    }
+
+    form textarea {
+      min-height: 4rem;
+    }
+
+    #btnsExport {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    #btnsExport button {
+      flex: 1;
+      padding: 0.7rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #0a9396;
+      color: white;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #btnsExport button:hover {
+      background-color: #005f73;
+    }
+    body.dark #btnsExport button {
+      background-color: #94d2bd;
+      color: #004f46;
+    }
+    body.dark #btnsExport button:hover {
+      background-color: #52b69a;
+    }
+
+    #preview {
+      flex: 1 1 320px;
+      max-width: 600px;
+      background-color: white;
+      border-radius: 6px;
+      padding: 1rem 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      max-height: 80vh;
+      line-height: 1.4;
+      color: #111;
+    }
+    body.dark #preview {
+      background-color: #222;
+      color: #ddd;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    }
+
+    #preview h2, #preview h3 {
+      margin: 0.8rem 0 0.3rem;
+      border-bottom: 1px solid #0a9396;
+      padding-bottom: 0.2rem;
+      color: #0a9396;
+    }
+    body.dark #preview h2, body.dark #preview h3 {
+      border-color: #94d2bd;
+      color: #94d2bd;
+    }
+
+    #previewNome {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0;
+    }
+    #previewCargo {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-top: 0.1rem;
+      margin-bottom: 0.8rem;
+      color: #007f5f;
+    }
+    body.dark #previewCargo {
+      color: #52b69a;
+    }
+
+    #previewContato {
+      font-style: italic;
+      font-size: 0.9rem;
+      margin-bottom: 1.2rem;
+      color: #555;
+    }
+    body.dark #previewContato {
+      color: #bbb;
+    }
+
+    #preview a {
+      color: #0a9396;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    body.dark #preview a {
+      color: #94d2bd;
+    }
+    #preview a:hover {
+      text-decoration: underline;
+    }
+
+    /* Scroll personalizado */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #0a9396;
+      border-radius: 5px;
+    }
+    body.dark ::-webkit-scrollbar-track {
+      background: #2a2a2a;
+    }
+    body.dark ::-webkit-scrollbar-thumb {
+      background: #52b69a;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        flex-direction: column;
+        padding: 0.5rem;
+      }
+      form#cvForm, #preview {
+        max-width: 100%;
+        flex: 1 1 auto;
+        max-height: none;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gerador de Currículo Profissional</h1>
+    <button id="themeToggle" title="Alternar tema">🌙 Escuro</button>
+  </header>
+  <main>
+    <form id="cvForm" autocomplete="off" spellcheck="false">
+      <label for="nome">Nome Completo *</label>
+      <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required />
+
+      <label for="cargo">Cargo Desejado</label>
+      <input type="text" id="cargo" name="cargo" placeholder="Ex: Desenvolvedor Frontend" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="email@exemplo.com" />
+
+      <label for="contato">Telefone / LinkedIn</label>
+      <input type="text" id="contato" name="contato" placeholder="Telefone ou LinkedIn" />
+
+      <label for="resumo">Resumo Profissional</label>
+      <textarea id="resumo" name="resumo" placeholder="Breve resumo das suas qualificações"></textarea>
+
+      <label for="experiencia">Experiência Profissional</label>
+      <textarea id="experiencia" name="experiencia" placeholder="Liste suas experiências profissionais"></textarea>
+
+      <label for="educacao">Formação Acadêmica</label>
+      <textarea id="educacao" name="educacao" placeholder="Detalhes da sua educação"></textarea>
+
+      <label for="habilidades">Habilidades</label>
+      <textarea id="habilidades" name="habilidades" placeholder="Suas principais habilidades"></textarea>
+
+      <label for="idiomas">Idiomas</label>
+      <textarea id="idiomas" name="idiomas" placeholder="Idiomas que você domina"></textarea>
+
+      <label for="links">Links (separados por linha)</label>
+      <textarea id="links" name="links" placeholder="Ex: linkedin.com/in/usuario"></textarea>
+
+      <div id="btnsExport">
+        <button type="button" id="btnPdf">Exportar PDF</button>
+        <button type="button" id="btnDocx">Exportar DOCX</button>
+      </div>
+    </form>
+    <section id="preview" aria-label="Pré-visualização do currículo">
+      <h1 id="previewNome">Nome Completo</h1>
+      <h2 id="previewCargo">Cargo Desejado</h2>
+      <p id="previewContato">email | telefone/linkedin</p>
+
+      <section id="secResumo" hidden>
+        <h2>Resumo Profissional</h2>
+        <p id="previewResumo"></p>
+      </section>
+
+      <section id="secExperiencia" hidden>
+        <h2>Experiência Profissional</h2>
+        <p id="previewExperiencia"></p>
+      </section>
+
+      <section id="secEducacao" hidden>
+        <h2>Formação Acadêmica</h2>
+        <p id="previewEducacao"></p>
+      </section>
+
+      <section id="secHabilidades" hidden>
+        <h2>Habilidades</h2>
+        <p id="previewHabilidades"></p>
+      </section>
+
+      <section id="secIdiomas" hidden>
+        <h2>Idiomas</h2>
+        <p id="previewIdiomas"></p>
+      </section>
+
+      <section id="secLinks" hidden>
+        <h2>Links</h2>
+        <p id="previewLinks"></p>
+      </section>
+    </section>
+  </main>
+
+  <!-- bibliotecas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.2.0/build/docx.umd.js"></script>
+
+  <script>
+    // Tema
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const bodyEl = document.body;
+
+    function toggleTheme() {
+      bodyEl.classList.toggle('dark');
+      const darkMode = bodyEl.classList.contains('dark');
+      localStorage.setItem('cv_theme', darkMode ? 'dark' : 'light');
+      themeToggleBtn.textContent = darkMode ? '☀️ Claro' : '🌙 Escuro';
+    }
+    themeToggleBtn.addEventListener('click', toggleTheme);
+
+    const savedTheme = localStorage.getItem('cv_theme');
+    if (savedTheme === 'dark') {
+      bodyEl.classList.add('dark');
+      themeToggleBtn.textContent = '☀️ Claro';
+    }
+
+    // Preview e Form
+    const form = document.getElementById('cvForm');
+    const preview = {
+      nome: document.getElementById('previewNome'),
+      cargo: document.getElementById('previewCargo'),
+      contato: document.getElementById('previewContato'),
+      resumoSec: document.getElementById('secResumo'),
+      resumo: document.getElementById('previewResumo'),
+      experienciaSec: document.getElementById('secExperiencia'),
+      experiencia: document.getElementById('previewExperiencia'),
+      educacaoSec: document.getElementById('secEducacao'),
+      educacao: document.getElementById('previewEducacao'),
+      habilidadesSec: document.getElementById('secHabilidades'),
+      habilidades: document.getElementById('previewHabilidades'),
+      idiomasSec: document.getElementById('secIdiomas'),
+      idiomas: document.getElementById('previewIdiomas'),
+      linksSec: document.getElementById('secLinks'),
+      links: document.getElementById('previewLinks'),
+    };
+
+    function updatePreview() {
+      const data = new FormData(form);
+
+      const nome = data.get('nome').trim() || 'Nome Completo';
+      preview.nome.textContent = nome;
+
+      const cargo = data.get('cargo').trim();
+      preview.cargo.textContent = cargo || 'Cargo Desejado';
+
+      const email = data.get('email').trim();
+      const contato = data.get('contato').trim();
+      let contatoTxt = '';
+      if (email) contatoTxt += email;
+      if (contato) contatoTxt += contatoTxt ? ' | ' + contato : contato;
+      preview.contato.textContent = contatoTxt || 'email | telefone/linkedin';
+
+      const resumoTxt = data.get('resumo').trim();
+      if (resumoTxt) {
+        preview.resumo.textContent = resumoTxt;
+        preview.resumoSec.hidden = false;
+      } else {
+        preview.resumoSec.hidden = true;
+      }
+
+      const expTxt = data.get('experiencia').trim();
+      if (expTxt) {
+        preview.experiencia.textContent = expTxt;
+        preview.experienciaSec.hidden = false;
+      } else {
+        preview.experienciaSec.hidden = true;
+      }
+
+      const eduTxt = data.get('educacao').trim();
+      if (eduTxt) {
+        preview.educacao.textContent = eduTxt;
+        preview.educacaoSec.hidden = false;
+      } else {
+        preview.educacaoSec.hidden = true;
+      }
+
+      const habTxt = data.get('habilidades').trim();
+      if (habTxt) {
+        preview.habilidades.textContent = habTxt;
+        preview.habilidadesSec.hidden = false;
+      } else {
+        preview.habilidadesSec.hidden = true;
+      }
+
+      const idiTxt = data.get('idiomas').trim();
+      if (idiTxt) {
+        preview.idiomas.textContent = idiTxt;
+        preview.idiomasSec.hidden = false;
+      } else {
+        preview.idiomasSec.hidden = true;
+      }
+
+      const linksTxt = data.get('links').trim();
+      if (linksTxt) {
+        preview.links.innerHTML = linksTxt.split('\n').map(link => {
+          link = link.trim();
+          if (!link) return '';
+          const href = link.startsWith('http') ? link : 'https://' + link;
+          return `<a href="${href}" target="_blank" rel="noopener noreferrer">${link}</a>`;
+        }).join('<br>');
+        preview.linksSec.hidden = false;
+      } else {
+        preview.linksSec.hidden = true;
+      }
+    }
+    form.addEventListener('input', updatePreview);
+    updatePreview();
+
+    // Exportar PDF
+    document.getElementById('btnPdf').addEventListener('click', () => {
+      const hadDark = bodyEl.classList.contains('dark');
+      if (hadDark) bodyEl.classList.remove('dark');
+
+      const element = document.getElementById('preview');
+      const opt = {
+        margin: 0.5,
+        filename: `Curriculo_${form.nome.value.trim() || 'SemNome'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, logging: false, scrollY: -window.scrollY },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save().finally(() => {
+        if (hadDark) bodyEl.classList.add('dark');
+      });
+    });
+
+    // Exportar DOCX
+    document.getElementById('btnDocx').addEventListener('click', async () => {
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, ExternalHyperlink } = window.docx;
+
+      const data = new FormData(form);
+
+      function para(text, heading = false, hyperlink = false) {
+        if (!text) return null;
+        if (hyperlink) {
+          return new Paragraph({
+            children: [
+              new ExternalHyperlink({
+                link: text,
+                children: [new TextRun({ text, style: 'Hyperlink' })]
+              }),
+            ],
+          });
+        }
+        return heading
+          ? new Paragraph({ text, heading: HeadingLevel.HEADING_3 })
+          : new Paragraph(text);
+      }
+
+      const children = [
+        new Paragraph({ text: data.get('nome').trim() || 'Nome Completo', heading: HeadingLevel.TITLE }),
+      ];
+
+      const cargo = data.get('cargo').trim();
+      if (cargo) {
+        children.push(new Paragraph({ text: cargo, spacing: { after: 200 } }));
+      }
+
+      const contatoText = [data.get('email').trim(), data.get('contato').trim()]
+        .filter(Boolean)
+        .join(' | ');
+      if (contatoText) {
+        children.push(new Paragraph(contatoText));
+      }
+
+      if (data.get('resumo').trim()) {
+        children.push(new Paragraph({ text: 'Resumo Profissional', heading: HeadingLevel.HEADING_2 }));
+        children.push(para(data.get('resumo').trim()));
+      }
+      if (data.get('experiencia').trim()) {
+        children.push(new Paragraph({ text: 'Experiência Profissional', heading: HeadingLevel.HEADING_2 }));
+        children.push(para(data.get('experiencia').trim()));
+      }
+      if (data.get('educacao').trim()) {
+        children.push(new Paragraph({ text: 'Formação Acadêmica', heading: HeadingLevel.HEADING_2 }));
+        children.push(para(data.get('educacao').trim()));
+      }
+      if (data.get('habilidades').trim()) {
+        children.push(new Paragraph({ text: 'Habilidades', heading: HeadingLevel.HEADING_2 }));
+        children.push(para(data.get('habilidades').trim()));
+      }
+      if (data.get('idiomas').trim()) {
+        children.push(new Paragraph({ text: 'Idiomas', heading: HeadingLevel.HEADING_2 }));
+        children.push(para(data.get('idiomas').trim()));
+      }
+      if (data.get('links').trim()) {
+        children.push(new Paragraph({ text: 'Links', heading: HeadingLevel.HEADING_2 }));
+        const links = data.get('links').trim().split('\n').map(link => link.trim()).filter(Boolean);
+        links.forEach(link => {
+          children.push(para(link, false, true));
+        });
+      }
+
+      const doc = new Document({
+        sections: [{ properties: {}, children }]
+      });
+
+      const packer = new Packer();
+      const blob = await packer.toBlob(doc);
+      const filename = `Curriculo_${data.get('nome').trim() || 'SemNome'}.docx`;
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }, 100);
+    });
+
+    form.addEventListener('submit', e => e.preventDefault());
+  </script>
+</body>
+</html>
